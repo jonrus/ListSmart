@@ -38,6 +38,7 @@ class ListSmartMongoDBHelper {
         }
         catch {
             console.log("Unable to connect to DB");
+            return ({sucess: false, msg: "Unable to connec to DB"});
         }
         finally {
             this._client.close();
@@ -47,16 +48,21 @@ class ListSmartMongoDBHelper {
     async newListInList(listOfListsID: string, listName: string) {
         try {
             await this._client.connect();
+
+            //Build the Mondgo doc
+            const filter = {_id: new ObjectId(listOfListsID)};
             const newListID = new ObjectId();
+            const newDoc = {$push: {lists: {id: newListID, title: listName, items: []}}};
+
             const res = await this._client.db("ListSmart").collection("ListOfLists").updateOne(
-                {_id: new ObjectId(listOfListsID)}, {$push: {lists: {id: newListID, title: listName, items: []}}}
-            );
+                filter, newDoc);
 
             if (res.matchedCount === 1) return ({sucess: true, id: newListID});
             return ({sucess: false});
         }
         catch {
             console.log("Unable to connect to DB");
+            return ({sucess: false, msg: "Unable to connec to DB"});
         }
         finally {
             this._client.close();
