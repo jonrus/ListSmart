@@ -30,11 +30,12 @@ class ListSmartMongoDBHelper {
         try {
             await this._client.connect();
 
+            //Build the Mondgo doc
             const newListDoc = {lists: []}
             const res = await this._client.db("ListSmart").collection("ListOfLists").insertOne(newListDoc);
 
             if (res.insertedId) return ({sucess: true, id: res.insertedId});
-            return ({sucess: false});
+            return ({sucess: false, msg: "Unable to insert into collection"});
         }
         catch {
             console.log("Unable to connect to DB");
@@ -45,11 +46,10 @@ class ListSmartMongoDBHelper {
         }
     }
 
-    async newListInList(listOfListsID: string, listName: string) {
+    async newListInLists(listOfListsID: string, listName: string) {
         try {
             await this._client.connect();
 
-            //Build the Mondgo doc
             const filter = {_id: new ObjectId(listOfListsID)};
             const newListID = new ObjectId();
             const newDoc = {$push: {lists: {id: newListID, title: listName, items: []}}};
@@ -58,7 +58,7 @@ class ListSmartMongoDBHelper {
                 filter, newDoc);
 
             if (res.matchedCount === 1) return ({sucess: true, id: newListID});
-            return ({sucess: false});
+            return ({sucess: false, msg: "No matching list"});
         }
         catch {
             console.log("Unable to connect to DB");
@@ -73,7 +73,6 @@ class ListSmartMongoDBHelper {
         try {
             await this._client.connect();
 
-            //Build the Mondgo doc
             const filter = {_id: new ObjectId(mainListID), "lists.id": new ObjectId(listID)};
             const newItemID = new ObjectId();
             //TODO spread item data from API route into the doc
@@ -83,7 +82,7 @@ class ListSmartMongoDBHelper {
                 filter, newDoc);
 
             if (res.matchedCount === 1) return ({sucess: true, id: newItemID});
-            return ({sucess: false});
+            return ({sucess: false, msg: "No matching list"});
         }
         catch {
             console.log("Unable to connect to DB");
@@ -98,7 +97,6 @@ class ListSmartMongoDBHelper {
         try {
             await this._client.connect();
 
-            //Build the Mondgo doc
             const filter = {_id: new ObjectId(mainListID), "lists.id": new ObjectId(listID), "lists.items.id": new ObjectId(itemID)};
             const newDoc = {$pull: {"lists.$.items": {id: new ObjectId(itemID)}}};
 
@@ -106,7 +104,72 @@ class ListSmartMongoDBHelper {
                 filter, newDoc);
 
             if (res.matchedCount === 1) return ({sucess: true, id: itemID});
-            return ({sucess: false});
+            return ({sucess: false, msg: "No matching item/list"});
+        }
+        catch {
+            console.log("Unable to connect to DB");
+            return ({sucess: false, msg: "Unable to connect to DB"});
+        }
+        finally {
+            this._client.close();
+        }
+    }
+
+    async deleteListInLists(mainListID: string, listID: string) {
+        //This will do no checking if the list is empty prior to removal
+        //Ensure checking/conformation is done else where.
+        try {
+            await this._client.connect();
+
+            const filter = {_id: new ObjectId(mainListID)};
+            const newDoc = {$pull: {lists: {id: new ObjectId(listID)}}};
+
+            const res = await this._client.db("ListSmart").collection("ListOfLists").updateOne(
+                filter, newDoc);
+
+            if (res.modifiedCount === 1) return ({sucess: true, id: listID});
+            return ({sucess: false, msg: "No mathing list"});
+        }
+        catch {
+            console.log("Unable to connect to DB");
+            return ({sucess: false, msg: "Unable to connect to DB"});
+        }
+        finally {
+            this._client.close();
+        }
+    }
+
+    async deleteListOfLists(mainListID: string) {
+        //This will do no checking if the list is empty prior to removal
+        //Ensure checking/conformation is done else where.
+        try {
+            await this._client.connect();
+
+            const filter = {_id: new ObjectId(mainListID)};
+
+            const res = await this._client.db("ListSmart").collection("ListOfLists").deleteOne(filter);
+
+            if (res.deletedCount === 1) return ({sucess: true, id: mainListID});
+            return ({sucess: false, msg: "No mathching list"});
+        }
+        catch {
+            console.log("Unable to connect to DB");
+            return ({sucess: false, msg: "Unable to connect to DB"});
+        }
+        finally {
+            this._client.close();
+        }
+    }
+
+    async fetchAllDataOfLists(mainListID: string) {
+        try {
+            await this._client.connect();
+
+            const filter = {_id: new ObjectId(mainListID)};
+            const res = await this._client.db("ListSmart").collection("ListOfLists").findOne(filter);
+
+            if (res) return ({sucess: true, id: mainListID, data: res});
+            return ({sucess: false, msg: "No mathching list"});
         }
         catch {
             console.log("Unable to connect to DB");
