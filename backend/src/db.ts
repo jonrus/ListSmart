@@ -7,6 +7,7 @@ export interface ListItem {
     quanity?: number,
     complete: boolean,
     optional: boolean,
+    notes?: string,
 }
 
 export interface List {
