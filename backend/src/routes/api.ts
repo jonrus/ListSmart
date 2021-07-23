@@ -71,8 +71,8 @@ APIRouter.delete("/del/list-of-lists", (async (req, res) => {
 }));
 
 //Get all data - list of lists
-APIRouter.get("/all/list-of-lists", (async (req, res) => {
-    const {mainID} = req.body;
+APIRouter.get("/all/:mainID", (async (req, res) => {
+    const {mainID} = req.params;
     if (!mainID) return res.status(500).json({error: true, msg: "Main list id is required"});
     
     const dbRes = await db.fetchAllDataOfLists(mainID);

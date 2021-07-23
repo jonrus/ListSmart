@@ -1,9 +1,9 @@
-import ItemList from "./components/ItemList";
+import Routes from "./components/Routes";
 
 function App() {
   return (
     <div className="App">
-        <ItemList />
+        <Routes />
     </div>
   );
 }
