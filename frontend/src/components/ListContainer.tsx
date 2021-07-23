@@ -2,11 +2,21 @@ import {useState, useEffect} from "react";
 import {useParams} from "react-router-dom";
 import ApiHelper from "../api/ApiHelper";
 import Spinner from "./Spinner";
+import {IItemList} from "./ItemList";
+
+interface IAllLists {
+    id: string,
+    error: boolean,
+    data: {
+        _id: string,
+        lists: IItemList[]
+    }
+}
 
 export default function ListContainer() {
     const {mainListID} = useParams<{mainListID: string}>();
     const [loading, setLoading] = useState<boolean>(true);
-    const [allListData, setAllListData] = useState({}); //TODO Set type
+    const [allListData, setAllListData] = useState<IAllLists>();
     
     //fetch data from the backend
     useEffect(() => {
@@ -18,6 +28,7 @@ export default function ListContainer() {
             }
 
             setAllListData(res);
+            console.log(allListData);
             setLoading(false);
         }
 
@@ -30,6 +41,9 @@ export default function ListContainer() {
     //Data loaded
     return (
         <>
+            <ul>
+                {allListData?.data.lists.map((list) => {return <li key={list.id}>{list.title}</li>})}
+            </ul>
         </>
     );
 }
