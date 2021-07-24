@@ -6,15 +6,15 @@ import {IAllLists} from "./Routes";
 
 export interface IListContainer {
     listsData: IAllLists | undefined,
-    fnGetData(listID: string, stop: Function): Promise<void>,
+    fnGetData(listID: string): Promise<void>,
+    loading: boolean
 }
 
-export default function ListContainer({listsData, fnGetData}: IListContainer) {
+export default function ListContainer({listsData, fnGetData, loading}: IListContainer) {
     const {mainListID} = useParams<{mainListID: string}>();
-    const [loading, setLoading] = useState<boolean>(true);
 
     useEffect(() => {
-        fnGetData(mainListID, () => {setLoading(false)});
+        fnGetData(mainListID);
     }, []);
     
     //Loading spinner
@@ -25,7 +25,7 @@ export default function ListContainer({listsData, fnGetData}: IListContainer) {
         <>
             <h1>Lists</h1>
             <ul>
-                {listsData?.data.lists.map(list => {return <ListTitle id={list.id} title={list.title} />})}
+                {listsData?.data.lists.map(list => {return <ListTitle id={list.id} title={list.title} key={list.id} />})}
             </ul>
         </>
     );

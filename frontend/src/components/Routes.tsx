@@ -4,6 +4,7 @@ import ApiHelper from "../api/ApiHelper";
 import {IItemList} from "./ItemList";
 import Landing from "./Landing";
 import ListContainer from "./ListContainer";
+import ItemList from "./ItemList";
 
 
 //Routes will serve as the storage location of all list data
@@ -18,20 +19,21 @@ export interface IAllLists {
 
 export default function Routes() {
     const [allListData, setAllListData] = useState<IAllLists>();
-    const fetchAllData = async (listID: string, fnStopLoading: Function) => {
+    const [dataLoading, setDataLoading] = useState(true);
+    const fetchAllData = async (listID: string) => {
         const res = await ApiHelper.getAllListData(listID);
         setAllListData(res);
-        fnStopLoading();
+        setDataLoading(false);
     }
 
     return (
         <>
             <Switch>
                 <Route path="/l/:mainListID/:listID">
-                    HI THERE AT THE LIST
+                    <ItemList listsData={allListData} loading={dataLoading} />
                 </Route>
                 <Route path="/l/:mainListID">
-                    <ListContainer fnGetData={fetchAllData} listsData={allListData}/>
+                    <ListContainer fnGetData={fetchAllData} listsData={allListData} loading={dataLoading} />
                 </Route>
                 <Route exact path="">
                     <Landing />

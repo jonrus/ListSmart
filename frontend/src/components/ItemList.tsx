@@ -1,6 +1,9 @@
 import {useState} from "react";
+import Spinner from "./Spinner";
 import Item, {IItem} from "./Item";
 import ItemModal from "./ItemModal";
+import {useParams} from "react-router-dom";
+import {IAllLists} from "./Routes";
 
 export interface IItemList {
     id: string,
@@ -8,15 +11,28 @@ export interface IItemList {
     items: IItem[]
 }
 
-export default function ItemList({id, title, items}: IItemList) {
+interface iItemList {
+    listsData: IAllLists | undefined,
+    loading: boolean,
+}
+export default function ItemList({listsData, loading}: iItemList) {
+    const {listID} = useParams<{listID: string}>();
     const [showModal, setShowModal] = useState(false);
     const [modalItem, setModalItem] = useState<IItem>();
+    const thisList = listsData?.data.lists.filter(list => list.id === listID)[0]; //If valid index should only be one match
+
+    //TODO check for error - thisList === undefined;
+
+    //Loading spinner
+    if (loading) return <Spinner />
+    if (thisList === undefined) return <>ERROR</>;
+
     return (
         <>
             {showModal && <ItemModal item={modalItem as IItem} fnClose={() => setShowModal(false)}/>}
-            {title}
+            {thisList?.title}
             <ul>
-                {items.map((item) => {
+                {thisList?.items.map((item) => {
                     return <Item
                             key={item.id}
                             id={item.id}
@@ -32,26 +48,3 @@ export default function ItemList({id, title, items}: IItemList) {
         </>
     );
 }
-
-ItemList.defaultProps = {
-    id: "SubListId",
-    title: "My First List",
-    items: [
-    {
-        id: "ThisIsID",
-        title: "Default Item Title 01",
-        quanity: 1,
-        complete: false,
-        optional: false,
-        notes: "This item has notes"
-    },
-    {
-        id: "ThisIsID2",
-        title: "Default Item Title 02",
-        quanity: 2,
-        complete: false,
-        optional: true,
-        notes: "This item has notes"
-    },
-    ]
-};

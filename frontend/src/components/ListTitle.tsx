@@ -9,7 +9,7 @@ export default function ListTitle({id, title}: IListTitle) {
     const loc = useLocation();
 
     return (
-        <li key={id}>
+        <li>
             <Link to={`${loc.pathname}/${id}`}>{title}</Link>
         </li>
     );
