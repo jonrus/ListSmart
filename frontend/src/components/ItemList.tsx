@@ -4,6 +4,8 @@ import Item, {IItem} from "./Item";
 import ItemModal from "./ItemModal";
 import {useParams} from "react-router-dom";
 import {IAllLists} from "./Routes";
+import NavBack from "./NavBack";
+import AddBtn from "./AddBtn";
 
 export interface IItemList {
     id: string,
@@ -17,19 +19,23 @@ interface iItemList {
 }
 export default function ItemList({listsData, loading}: iItemList) {
     const {listID} = useParams<{listID: string}>();
-    const [showModal, setShowModal] = useState(false);
+    const {mainListID} = useParams<{mainListID: string}>();
+    const [showItemModal, setShowItemModal] = useState(false); //To Show item details modal
     const [modalItem, setModalItem] = useState<IItem>();
+    const [showNewItemModal, setShowNewItemModal] = useState(false);
     const thisList = listsData?.data.lists.filter(list => list.id === listID)[0]; //If valid index should only be one match
 
-    //TODO check for error - thisList === undefined;
 
     //Loading spinner
     if (loading) return <Spinner />
+    //TODO check for error - thisList === undefined;
     if (thisList === undefined) return <>ERROR</>;
 
     return (
         <>
-            {showModal && <ItemModal item={modalItem as IItem} fnClose={() => setShowModal(false)}/>}
+            <NavBack to={`/l/${mainListID}`} />
+            {showItemModal && <ItemModal item={modalItem as IItem} fnClose={() => setShowItemModal(false)}/>}
+            {showNewItemModal && <div onClick={() => setShowNewItemModal(false)}>NEW ITEM</div>}
             {thisList?.title}
             <ul>
                 {thisList?.items.map((item) => {
@@ -41,10 +47,11 @@ export default function ItemList({listsData, loading}: iItemList) {
                             complete={item.complete}
                             optional={item.optional}
                             notes={item.notes}
-                            fnClick={() => {setShowModal(true);setModalItem(item)}}
+                            fnClick={() => {setShowItemModal(true);setModalItem(item)}}
                             />
                 })}
             </ul>
+            <AddBtn fnOnClick={() => setShowNewItemModal(true)}/>
         </>
     );
 }

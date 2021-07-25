@@ -2,6 +2,7 @@ import {useState} from "react";
 import {Switch, Route, Redirect} from "react-router-dom";
 import ApiHelper from "../api/ApiHelper";
 import {IItemList} from "./ItemList";
+import DataLoader from "./DataLoader";
 import Landing from "./Landing";
 import ListContainer from "./ListContainer";
 import ItemList from "./ItemList";
@@ -30,10 +31,12 @@ export default function Routes() {
         <>
             <Switch>
                 <Route path="/l/:mainListID/:listID">
+                    <DataLoader fnGetData={fetchAllData} loading={dataLoading} />
                     <ItemList listsData={allListData} loading={dataLoading} />
                 </Route>
                 <Route path="/l/:mainListID">
-                    <ListContainer fnGetData={fetchAllData} listsData={allListData} loading={dataLoading} />
+                    <DataLoader fnGetData={fetchAllData} loading={dataLoading} />
+                    <ListContainer listsData={allListData} loading={dataLoading} />
                 </Route>
                 <Route exact path="">
                     <Landing />
